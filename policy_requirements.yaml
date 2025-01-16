@@ -1,0 +1,62 @@
+# Example structure for required policies
+required_policies:
+  - name: "MFA for All Users (Base Policy)"
+    required_conditions:
+      users:
+        includeUsers: ["All"]
+    required_controls:
+      grantControls:
+        builtInControls: ["mfa"]
+
+  - name: "Entra ID User Risk Policy for High Risk Users"
+    required_conditions:
+      users:
+        includeUsers: ["All"]
+      userRiskLevels: ["high"]
+    required_controls:
+      grantControls:
+        builtInControls: ["passwordChange"] 
+
+  - name: "Entra ID Sign-in Risk Policy for Medium and High Risk Users"
+    required_conditions:
+      users:
+        includeUsers: ["All"]
+      applications:
+        includeApplications: ["All"]
+      signInRiskLevels: ["high", "medium"]
+      clientAppTypes: ["all"]
+    required_controls:
+      grantControls:
+        operator: "OR"
+        builtInControls: ["mfa"]
+    required_session_controls:
+      signInFrequency:
+        isEnabled: true
+        frequencyInterval: "everyTime"
+        authenticationType: "primaryAndSecondaryAuthentication"
+
+  - name: "Block Legacy Authentication"
+    required_conditions:
+      users:
+        includeUsers: ["All"]
+      applications:
+        includeApplications: ["All"]
+      clientAppTypes: ["other"]
+    required_controls:
+      grantControls:
+        builtInControls: ["block"]
+
+  - name: "Block access for unknown or unsupported device platform"
+    required_conditions:
+      users:
+        includeUsers: ["All"]
+      applications:
+        includeApplications: ["All"]
+      clientAppTypes: ["all"]
+      platforms:
+        includePlatforms: ["all"]
+        excludePlatforms: ["android", "iOS", "windows", "macOS", "linux", "windowsPhone"]
+    required_controls:
+      grantControls:
+        operator: "OR"
+        builtInControls: ["block"]
